@@ -1,0 +1,7 @@
+analyseLocally=true
+eclipse.preferences.version=1
+extraProperties=sonar.host.url\=http\://localhost\:9000\r\nsonar.squid.analyse.property.accessors\=false\r\nsonar.findbugs.excludesFilters\=C\:\\projects\\deors.demos\\testing\\deors.demos.testing.arquillian/findbugs-filter.xml\r\nsonar.jdbc.username\=sonar\r\nsonar.jdbc.url\=jdbc\:mysql\://localhost\:3306/sonar?useUnicode\=true&characterEncoding\=utf8\r\nsonar.jdbc.driver\=com.mysql.jdbc.Driver\r\nsonar.reuseExistingRulesConfiguration\=true\r\nsonar.jdbc.password\=sonarsonar
+lastAnalysisDate=1375035019293
+projectKey=deors.demos\:deors.demos.testing.arquillian
+serverUrl=http\://localhost\:9000
+version=2
