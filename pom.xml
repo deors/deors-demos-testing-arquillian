@@ -21,17 +21,23 @@
 
         <java.version>1.7</java.version>
         <javaee.version>6.0</javaee.version>
-        <jbossjee6.version>1.0.0.Final</jbossjee6.version>
-        <weld.version>1.1.5.Final</weld.version>
+        <jboss-javaee6.version>1.0.0.Final</jboss-javaee6.version>
 
         <junit.version>4.10</junit.version>
         <slf4j.version>1.6.4</slf4j.version>
 
-        <arquillian.version>1.1.0.Final</arquillian.version>
-        <arquillian-embedded.version>1.0.0.CR3</arquillian-embedded.version>
-
+        <weld.version>1.1.18.Final</weld.version>
+        <tomcat.version>7.0.42</tomcat.version>
         <glassfish.version>3.1.2.2</glassfish.version>
         <jboss.version>7.1.1.Final</jboss.version>
+
+        <eclipse-jdt.version>3.7</eclipse-jdt.version>
+        
+        <arquillian.version>1.1.3.Final</arquillian.version>
+        <arquillian-weld.version>1.0.0.CR8</arquillian-weld.version>
+        <arquillian-tomcat.version>1.0.0.CR6</arquillian-tomcat.version>
+        <arquillian-glassfish.version>1.0.0.CR4</arquillian-glassfish.version>
+        <arquillian-jboss.version>7.1.1.Final</arquillian-jboss.version>
     </properties>
 
     <build>
@@ -73,27 +79,8 @@
     	<!-- do not use javax:javaee-api artifact, use jboss' instead -->
     	<!-- see reason here:
     	     https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
-    	<!-- for glassfish embedded the artifact contains all needed classes
-    	     and there is a clash with jboss' artifact, hence java ee
-    	     dependencies are moved to profiles section -->
-        <!-- <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>${javaee.version}</version>
-            <scope>provided</scope>
-        </dependency> -->
-        <!-- <dependency>
-            <groupId>org.jboss.spec</groupId>
-            <artifactId>jboss-javaee-6.0</artifactId>
-            <version>${jbossjee6.version}</version>
-            <type>pom</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.weld</groupId>
-            <artifactId>weld-core</artifactId>
-            <version>${weld.version}</version>
-        </dependency> -->
+    	<!-- for glassfish embedded the artifact contains all needed classes and there is a clash with jboss artifact
+             therefore java ee dependencies are moved to profiles section -->
 
         <dependency>
             <groupId>junit</groupId>
@@ -135,20 +122,214 @@
 		        <dependency>
 		            <groupId>org.jboss.spec</groupId>
 		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jbossjee6.version}</version>
+		            <version>${jboss-javaee6.version}</version>
 		            <type>pom</type>
 		            <scope>provided</scope>
 		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
+                    <version>${arquillian-weld.version}</version>
+                    <scope>test</scope>
+                </dependency>
 		        <dependency>
 		            <groupId>org.jboss.weld</groupId>
 		            <artifactId>weld-core</artifactId>
 		            <version>${weld.version}</version>
+                    <scope>test</scope>
 		        </dependency>
+            </dependencies>
+        </profile>
 
+        <!-- tomcat embedded -->
+        <!-- only for cdi tests, i.e. no ejb -->
+        <!-- fails. needs different deployment. see http://www.hameister.org/ArquillianTomcatDependencyInjection.html -->
+        <profile>
+            <id>arquillian-tomcat-embedded</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+		                    <excludes>
+		                        <exclude>**/BasketTest.java</exclude>
+                            </excludes>
+                            <argLine>-Darquillian.launch=tomcat-embedded</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
-                    <version>${arquillian-embedded.version}</version>
+                    <artifactId>arquillian-tomcat-embedded-7</artifactId>
+                    <version>${arquillian-tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+		        <dependency>
+		            <groupId>org.jboss.weld.servlet</groupId>
+		            <artifactId>weld-servlet</artifactId>
+		            <version>${weld.version}</version>
+                    <scope>test</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-core</artifactId>
+                    <version>${tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-jasper</artifactId>
+                    <version>${tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-logging-juli</artifactId>
+                    <version>${tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.eclipse.jdt.core.compiler</groupId>
+                    <artifactId>ecj</artifactId>
+                    <version>${eclipse-jdt.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- tomcat on-demand -->
+        <!-- only for cdi tests, i.e. no ejb -->
+        <!-- fails. needs different deployment. see http://www.hameister.org/ArquillianTomcatDependencyInjection.html -->
+        <profile>
+            <id>arquillian-tomcat-ondemand</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+		                    <excludes>
+		                        <exclude>**/BasketTest.java</exclude>
+                            </excludes>
+                            <argLine>-Darquillian.launch=tomcat-ondemand</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.apache.tomcat</groupId>
+                                            <artifactId>tomcat</artifactId>
+                                            <version>${tomcat.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>target</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-tomcat-managed-7</artifactId>
+                    <version>${arquillian-tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- tomcat managed -->
+        <!-- only for cdi tests, i.e. no ejb -->
+        <!-- fails. needs different deployment. see http://www.hameister.org/ArquillianTomcatDependencyInjection.html -->
+        <profile>
+            <id>arquillian-tomcat-managed</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+		                    <excludes>
+		                        <exclude>**/BasketTest.java</exclude>
+                            </excludes>
+                            <argLine>-Darquillian.launch=tomcat-managed</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-tomcat-managed-7</artifactId>
+                    <version>${arquillian-tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- tomcat remote -->
+        <!-- only for cdi tests, i.e. no ejb -->
+        <!-- fails. needs different deployment. see http://www.hameister.org/ArquillianTomcatDependencyInjection.html -->
+        <profile>
+            <id>arquillian-tomcat-remote</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+		                    <excludes>
+		                        <exclude>**/BasketTest.java</exclude>
+                            </excludes>
+                            <argLine>-Darquillian.launch=tomcat-remote</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-tomcat-remote-7</artifactId>
+                    <version>${arquillian-tomcat.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -167,17 +348,104 @@
                     <version>${glassfish.version}</version>
                     <scope>provided</scope>
                 </dependency>
-
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
-                    <version>${arquillian-embedded.version}</version>
+                    <version>${arquillian-glassfish.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- glassfish on-demand -->
+        <!-- uses glassfish 3.1.1 - 3.1.2.2 distribution not available in central repository -->
+        <profile>
+            <id>arquillian-glassfish-ondemand</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Darquillian.launch=glassfish-ondemand</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.distributions</groupId>
+                                            <artifactId>glassfish</artifactId>
+                                            <version>3.1.1</version>
+                                            <!--<version>${glassfish.version}</version>-->
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>target</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-glassfish-managed-3.1</artifactId>
+                    <version>${arquillian-glassfish.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- glassfish managed -->
+        <!-- fails. see https://issues.jboss.org/browse/ARQ-1611 and https://community.jboss.org/message/850360 -->
+        <profile>
+            <id>arquillian-glassfish-managed</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Darquillian.launch=glassfish-managed</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.container</groupId>
+                    <artifactId>arquillian-glassfish-managed-3.1</artifactId>
+                    <version>${arquillian-glassfish.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
         </profile>
 
         <!-- glassfish remote -->
+        <!-- fails. see https://issues.jboss.org/browse/ARQ-1611 and https://community.jboss.org/message/850360 -->
         <profile>
             <id>arquillian-glassfish-remote</id>
             <build>
@@ -194,35 +462,28 @@
 		        <dependency>
 		            <groupId>org.jboss.spec</groupId>
 		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jbossjee6.version}</version>
+		            <version>${jboss-javaee6.version}</version>
 		            <type>pom</type>
 		            <scope>provided</scope>
 		        </dependency>
-		        <dependency>
-		            <groupId>org.jboss.weld</groupId>
-		            <artifactId>weld-core</artifactId>
-		            <version>${weld.version}</version>
-		        </dependency>
-
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-remote-3.1</artifactId>
-                    <version>${arquillian-embedded.version}</version>
+                    <version>${arquillian-glassfish.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
         </profile>
 
-        <!-- jboss managed -->
+        <!-- jboss on-demand -->
         <profile>
-            <id>arquillian-jboss-managed</id>
-            <!-- provision on-demand -->
+            <id>arquillian-jboss-ondemand</id>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=jboss-managed</argLine>
+                            <argLine>-Darquillian.launch=jboss-ondemand</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -255,20 +516,49 @@
 		        <dependency>
 		            <groupId>org.jboss.spec</groupId>
 		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jbossjee6.version}</version>
+		            <version>${jboss-javaee6.version}</version>
 		            <type>pom</type>
 		            <scope>provided</scope>
 		        </dependency>
-		        <dependency>
-		            <groupId>org.jboss.weld</groupId>
-		            <artifactId>weld-core</artifactId>
-		            <version>${weld.version}</version>
-		        </dependency>
-
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-managed</artifactId>
-                    <version>${jboss.version}</version>
+                    <version>${arquillian-jboss.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.protocol</groupId>
+                    <artifactId>arquillian-protocol-servlet</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- jboss managed -->
+        <profile>
+            <id>arquillian-jboss-managed</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Darquillian.launch=jboss-managed</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+		        <dependency>
+		            <groupId>org.jboss.spec</groupId>
+		            <artifactId>jboss-javaee-6.0</artifactId>
+		            <version>${jboss-javaee6.version}</version>
+		            <type>pom</type>
+		            <scope>provided</scope>
+		        </dependency>
+                <dependency>
+                    <groupId>org.jboss.as</groupId>
+                    <artifactId>jboss-as-arquillian-container-managed</artifactId>
+                    <version>${arquillian-jboss.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -282,24 +572,28 @@
         <!-- jboss remote -->
         <profile>
             <id>arquillian-jboss-remote</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Darquillian.launch=jboss-remote</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
             <dependencies>
 		        <dependency>
 		            <groupId>org.jboss.spec</groupId>
 		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jbossjee6.version}</version>
+		            <version>${jboss-javaee6.version}</version>
 		            <type>pom</type>
 		            <scope>provided</scope>
 		        </dependency>
-		        <dependency>
-		            <groupId>org.jboss.weld</groupId>
-		            <artifactId>weld-core</artifactId>
-		            <version>${weld.version}</version>
-		        </dependency>
-
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-remote</artifactId>
-                    <version>${jboss.version}</version>
+                    <version>${arquillian-jboss.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
