@@ -15,15 +15,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <sonar.reuseExistingRulesConfiguration>true</sonar.reuseExistingRulesConfiguration>
-        <sonar.squid.analyse.property.accessors>false</sonar.squid.analyse.property.accessors>
-        <sonar.findbugs.excludesFilters>${project.basedir}/findbugs-filter.xml</sonar.findbugs.excludesFilters>
-
         <java.version>1.7</java.version>
+
         <javaee.version>6.0</javaee.version>
         <jboss-javaee6.version>1.0.0.Final</jboss-javaee6.version>
 
-        <junit.version>4.10</junit.version>
         <slf4j.version>1.6.4</slf4j.version>
 
         <weld.version>1.1.18.Final</weld.version>
@@ -32,12 +28,24 @@
         <jboss.version>7.1.1.Final</jboss.version>
 
         <eclipse-jdt.version>3.7</eclipse-jdt.version>
-        
+
+        <junit.version>4.11</junit.version>
         <arquillian.version>1.1.3.Final</arquillian.version>
         <arquillian-weld.version>1.0.0.CR8</arquillian-weld.version>
         <arquillian-tomcat.version>1.0.0.CR6</arquillian-tomcat.version>
         <arquillian-glassfish.version>1.0.0.CR4</arquillian-glassfish.version>
         <arquillian-jboss.version>7.1.1.Final</arquillian-jboss.version>
+
+        <jacoco.version>0.7.0.201403182114</jacoco.version>
+        <jacoco.path>${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar</jacoco.path>
+        <jacoco.utReport>${project.build.directory}/jacoco.exec</jacoco.utReport>
+        <jacoco.itReport>${project.build.directory}/jacoco.itest</jacoco.itReport>
+        <jacoco.utAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.utReport}</jacoco.utAgentConfig>
+        <jacoco.itAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.itReport}</jacoco.itAgentConfig>
+
+        <jacoco-listeners.version>2.3</jacoco-listeners.version>
+
+        <sonar.jacoco.itReportPath>${jacoco.itReport}</sonar.jacoco.itReportPath>
     </properties>
 
     <build>
@@ -47,10 +55,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <verbose>true</verbose>
-                    <fork>true</fork>
-                    <executable>${java.home}/../bin/javac</executable>
-                    <compilerVersion>${java.version}</compilerVersion>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
@@ -58,7 +62,39 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.15</version>
+                <version>2.17</version>
+                <configuration>
+                    <argLine>${jacoco.utAgentConfig}</argLine>
+                    <excludes>
+                        <exclude>**/it/*TestCase.java</exclude>
+                    </excludes>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.sonar.java.jacoco.JUnitListener</value>
+                        </property>
+                    </properties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <argLine>${jacoco.itAgentConfig}</argLine>
+                    <includes>
+                        <include>**/it/*TestCase.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -76,10 +112,10 @@
     </dependencyManagement>
 
     <dependencies>
-    	<!-- do not use javax:javaee-api artifact, use jboss' instead -->
-    	<!-- see reason here:
-    	     https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
-    	<!-- for glassfish embedded the artifact contains all needed classes and there is a clash with jboss artifact
+      <!-- do not use javax:javaee-api artifact, use jboss' instead -->
+      <!-- see reason here:
+           https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+      <!-- for glassfish embedded the artifact contains all needed classes and there is a clash with jboss artifact
              therefore java ee dependencies are moved to profiles section -->
 
         <dependency>
@@ -89,14 +125,27 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <version>${jacoco.version}</version>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.sonar-plugins.java</groupId>
+            <artifactId>sonar-jacoco-listeners</artifactId>
+            <version>${jacoco-listeners.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -110,34 +159,34 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-		                <configuration>
-		                    <excludes>
-		                        <exclude>**/BasketTest.java</exclude>
-		                    </excludes>
-		                </configuration>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/BasketTest.java</exclude>
+                        </excludes>
+                    </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
                     <version>${arquillian-weld.version}</version>
                     <scope>test</scope>
                 </dependency>
-		        <dependency>
-		            <groupId>org.jboss.weld</groupId>
-		            <artifactId>weld-core</artifactId>
-		            <version>${weld.version}</version>
+            <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-core</artifactId>
+                <version>${weld.version}</version>
                     <scope>test</scope>
-		        </dependency>
+            </dependency>
             </dependencies>
         </profile>
 
@@ -151,8 +200,8 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-		                    <excludes>
-		                        <exclude>**/BasketTest.java</exclude>
+                        <excludes>
+                            <exclude>**/BasketTest.java</exclude>
                             </excludes>
                             <argLine>-Darquillian.launch=tomcat-embedded</argLine>
                         </configuration>
@@ -160,25 +209,25 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-embedded-7</artifactId>
                     <version>${arquillian-tomcat.version}</version>
                     <scope>test</scope>
                 </dependency>
-		        <dependency>
-		            <groupId>org.jboss.weld.servlet</groupId>
-		            <artifactId>weld-servlet</artifactId>
-		            <version>${weld.version}</version>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet</artifactId>
+                <version>${weld.version}</version>
                     <scope>test</scope>
-		        </dependency>
+            </dependency>
                 <dependency>
                     <groupId>org.apache.tomcat.embed</groupId>
                     <artifactId>tomcat-embed-core</artifactId>
@@ -216,8 +265,8 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-		                    <excludes>
-		                        <exclude>**/BasketTest.java</exclude>
+                        <excludes>
+                            <exclude>**/BasketTest.java</exclude>
                             </excludes>
                             <argLine>-Darquillian.launch=tomcat-ondemand</argLine>
                         </configuration>
@@ -249,13 +298,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-managed-7</artifactId>
@@ -275,8 +324,8 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-		                    <excludes>
-		                        <exclude>**/BasketTest.java</exclude>
+                        <excludes>
+                            <exclude>**/BasketTest.java</exclude>
                             </excludes>
                             <argLine>-Darquillian.launch=tomcat-managed</argLine>
                         </configuration>
@@ -284,13 +333,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-managed-7</artifactId>
@@ -310,8 +359,8 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-		                    <excludes>
-		                        <exclude>**/BasketTest.java</exclude>
+                        <excludes>
+                            <exclude>**/BasketTest.java</exclude>
                             </excludes>
                             <argLine>-Darquillian.launch=tomcat-remote</argLine>
                         </configuration>
@@ -319,13 +368,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-remote-7</artifactId>
@@ -397,13 +446,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-managed-3.1</artifactId>
@@ -428,13 +477,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-managed-3.1</artifactId>
@@ -459,13 +508,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-remote-3.1</artifactId>
@@ -513,13 +562,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-managed</artifactId>
@@ -548,13 +597,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-managed</artifactId>
@@ -583,13 +632,13 @@
                 </plugins>
             </build>
             <dependencies>
-		        <dependency>
-		            <groupId>org.jboss.spec</groupId>
-		            <artifactId>jboss-javaee-6.0</artifactId>
-		            <version>${jboss-javaee6.version}</version>
-		            <type>pom</type>
-		            <scope>provided</scope>
-		        </dependency>
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>${jboss-javaee6.version}</version>
+                <type>pom</type>
+                <scope>provided</scope>
+            </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-remote</artifactId>
