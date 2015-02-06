@@ -1,1 +1,1 @@
-mvn test -P arquillian-glassfish-ondemand,!arquillian-glassfish-embedded
+mvn test -P arquillian-glassfish-ondemand,!arquillian-glassfish-embedded %*

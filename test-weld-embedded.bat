@@ -1,1 +1,1 @@
-mvn test -P arquillian-weld-embedded,!arquillian-glassfish-embedded
+mvn test -P arquillian-weld-embedded,!arquillian-glassfish-embedded %*

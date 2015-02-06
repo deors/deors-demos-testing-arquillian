@@ -12,13 +12,13 @@
 
     <container qualifier="tomcat-ondemand">
         <configuration>
-            <property name="catalinaHome">target/apache-tomcat-7.0.42</property>
+            <property name="catalinaHome">target/apache-tomcat-7.0.55</property>
         </configuration>
     </container>
 
     <container qualifier="tomcat-managed">
         <configuration>
-            <property name="catalinaHome">/java/servers/apache-tomcat-7.0.42</property>
+            <property name="catalinaHome">/java/servers/apache-tomcat-7.0.55</property>
             <property name="bindHttpPort">18080</property>
             <property name="jmxPort">18089</property>
             <property name="user">admin</property>

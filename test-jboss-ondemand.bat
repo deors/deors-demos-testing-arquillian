@@ -1,1 +1,1 @@
-mvn test -P arquillian-jboss-ondemand,!arquillian-glassfish-embedded
+mvn test -P arquillian-jboss-ondemand,!arquillian-glassfish-embedded %*

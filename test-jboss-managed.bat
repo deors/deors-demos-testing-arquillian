@@ -1,1 +1,1 @@
-mvn test -P arquillian-jboss-managed,!arquillian-glassfish-embedded
+mvn test -P arquillian-jboss-managed,!arquillian-glassfish-embedded %*

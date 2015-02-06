@@ -1,1 +1,1 @@
-mvn test -P arquillian-tomcat-managed,!arquillian-glassfish-embedded
+mvn test -P arquillian-tomcat-managed,!arquillian-glassfish-embedded %*

@@ -1,1 +1,1 @@
-mvn test -P arquillian-tomcat-remote,!arquillian-glassfish-embedded
+mvn test -P arquillian-tomcat-remote,!arquillian-glassfish-embedded %*

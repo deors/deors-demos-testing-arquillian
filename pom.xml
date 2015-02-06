@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -23,29 +22,26 @@
         <slf4j.version>1.6.4</slf4j.version>
 
         <weld.version>1.1.18.Final</weld.version>
-        <tomcat.version>7.0.42</tomcat.version>
+        <tomcat.version>7.0.55</tomcat.version>
         <glassfish.version>3.1.2.2</glassfish.version>
         <jboss.version>7.1.1.Final</jboss.version>
 
         <eclipse-jdt.version>3.7</eclipse-jdt.version>
 
         <junit.version>4.11</junit.version>
-        <arquillian.version>1.1.3.Final</arquillian.version>
+        <arquillian.version>1.1.6.Final</arquillian.version>
         <arquillian-weld.version>1.0.0.CR8</arquillian-weld.version>
-        <arquillian-tomcat.version>1.0.0.CR6</arquillian-tomcat.version>
+        <arquillian-tomcat.version>1.0.0.CR7</arquillian-tomcat.version>
         <arquillian-glassfish.version>1.0.0.CR4</arquillian-glassfish.version>
-        <arquillian-jboss.version>7.1.1.Final</arquillian-jboss.version>
 
-        <jacoco.version>0.7.0.201403182114</jacoco.version>
+        <jacoco.version>0.7.1.201405082137</jacoco.version>
         <jacoco.path>${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar</jacoco.path>
         <jacoco.utReport>${project.build.directory}/jacoco.exec</jacoco.utReport>
-        <jacoco.itReport>${project.build.directory}/jacoco.itest</jacoco.itReport>
+        <jacoco.itReport>${project.build.directory}/jacoco-it.exec</jacoco.itReport>
         <jacoco.utAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.utReport}</jacoco.utAgentConfig>
         <jacoco.itAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.itReport}</jacoco.itAgentConfig>
 
-        <jacoco-listeners.version>2.3</jacoco-listeners.version>
-
-        <sonar.jacoco.itReportPath>${jacoco.itReport}</sonar.jacoco.itReportPath>
+        <jacoco-listeners.version>2.4</jacoco-listeners.version>
     </properties>
 
     <build>
@@ -112,12 +108,11 @@
     </dependencyManagement>
 
     <dependencies>
-      <!-- do not use javax:javaee-api artifact, use jboss' instead -->
-      <!-- see reason here:
-           https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
-      <!-- for glassfish embedded the artifact contains all needed classes and there is a clash with jboss artifact
-             therefore java ee dependencies are moved to profiles section -->
-
+        <!-- do not use javax:javaee-api artifact, use jboss' instead -->
+        <!-- see reason here:
+             https://community.jboss.org/wiki/WhatsTheCauseOfThisExceptionJavalangClassFormatErrorAbsentCode -->
+        <!-- for glassfish embedded the artifact contains all needed classes and there is a clash
+             with jboss artifact therefore java ee dependencies are moved to the profiles section -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -159,34 +154,34 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <excludes>
-                            <exclude>**/BasketTest.java</exclude>
-                        </excludes>
-                    </configuration>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/BasketTest.java</exclude>
+                            </excludes>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
                     <version>${arquillian-weld.version}</version>
                     <scope>test</scope>
                 </dependency>
-            <dependency>
-                <groupId>org.jboss.weld</groupId>
-                <artifactId>weld-core</artifactId>
-                <version>${weld.version}</version>
+                <dependency>
+                    <groupId>org.jboss.weld</groupId>
+                    <artifactId>weld-core</artifactId>
+                    <version>${weld.version}</version>
                     <scope>test</scope>
-            </dependency>
+                </dependency>
             </dependencies>
         </profile>
 
@@ -200,34 +195,36 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                        <excludes>
-                            <exclude>**/BasketTest.java</exclude>
+                            <excludes>
+                                <exclude>**/BasketTest.java</exclude>
                             </excludes>
-                            <argLine>-Darquillian.launch=tomcat-embedded</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=tomcat-embedded ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-embedded-7</artifactId>
                     <version>${arquillian-tomcat.version}</version>
                     <scope>test</scope>
                 </dependency>
-            <dependency>
-                <groupId>org.jboss.weld.servlet</groupId>
-                <artifactId>weld-servlet</artifactId>
-                <version>${weld.version}</version>
+                <dependency>
+                    <groupId>org.jboss.weld.servlet</groupId>
+                    <artifactId>weld-servlet</artifactId>
+                    <version>${weld.version}</version>
                     <scope>test</scope>
-            </dependency>
+                </dependency>
                 <dependency>
                     <groupId>org.apache.tomcat.embed</groupId>
                     <artifactId>tomcat-embed-core</artifactId>
@@ -265,10 +262,12 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                        <excludes>
-                            <exclude>**/BasketTest.java</exclude>
+                            <excludes>
+                                <exclude>**/BasketTest.java</exclude>
                             </excludes>
-                            <argLine>-Darquillian.launch=tomcat-ondemand</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=tomcat-ondemand ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -298,13 +297,13 @@
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-managed-7</artifactId>
@@ -324,22 +323,24 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                        <excludes>
-                            <exclude>**/BasketTest.java</exclude>
+                            <excludes>
+                                <exclude>**/BasketTest.java</exclude>
                             </excludes>
-                            <argLine>-Darquillian.launch=tomcat-managed</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=tomcat-managed ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-managed-7</artifactId>
@@ -359,22 +360,24 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                        <excludes>
-                            <exclude>**/BasketTest.java</exclude>
+                            <excludes>
+                                <exclude>**/BasketTest.java</exclude>
                             </excludes>
-                            <argLine>-Darquillian.launch=tomcat-remote</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=tomcat-remote ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-remote-7</artifactId>
@@ -407,7 +410,6 @@
         </profile>
 
         <!-- glassfish on-demand -->
-        <!-- uses glassfish 3.1.1 - 3.1.2.2 distribution not available in central repository -->
         <profile>
             <id>arquillian-glassfish-ondemand</id>
             <build>
@@ -415,7 +417,9 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=glassfish-ondemand</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=glassfish-ondemand ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -430,10 +434,9 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.glassfish.distributions</groupId>
+                                            <groupId>org.glassfish.main.distributions</groupId>
                                             <artifactId>glassfish</artifactId>
-                                            <version>3.1.1</version>
-                                            <!--<version>${glassfish.version}</version>-->
+                                            <version>${glassfish.version}</version>
                                             <type>zip</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>target</outputDirectory>
@@ -446,13 +449,13 @@
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-managed-3.1</artifactId>
@@ -471,19 +474,21 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=glassfish-managed</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=glassfish-managed ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-managed-3.1</artifactId>
@@ -502,19 +507,21 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=glassfish-remote</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=glassfish-remote ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-remote-3.1</artifactId>
@@ -532,7 +539,9 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=jboss-ondemand</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=jboss-ondemand ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -562,17 +571,17 @@
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-managed</artifactId>
-                    <version>${arquillian-jboss.version}</version>
+                    <version>${jboss.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -591,23 +600,25 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=jboss-managed</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=jboss-managed ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-managed</artifactId>
-                    <version>${arquillian-jboss.version}</version>
+                    <version>${jboss.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -626,23 +637,25 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Darquillian.launch=jboss-remote</argLine>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=jboss-remote ${jacoco.utAgentConfig}</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
             <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss-javaee6.version}</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>${jboss-javaee6.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>org.jboss.as</groupId>
                     <artifactId>jboss-as-arquillian-container-remote</artifactId>
-                    <version>${arquillian-jboss.version}</version>
+                    <version>${jboss.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>

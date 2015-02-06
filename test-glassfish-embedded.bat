@@ -1,1 +1,1 @@
-mvn test -P arquillian-glassfish-embedded
+mvn test -P arquillian-glassfish-embedded %*
