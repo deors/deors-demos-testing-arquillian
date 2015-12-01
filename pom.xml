@@ -14,7 +14,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
 
         <javaee.version>6.0</javaee.version>
         <jboss-javaee6.version>1.0.0.Final</jboss-javaee6.version>
@@ -22,26 +22,26 @@
         <slf4j.version>1.6.4</slf4j.version>
 
         <weld.version>1.1.18.Final</weld.version>
-        <tomcat.version>7.0.55</tomcat.version>
+        <tomcat.version>7.0.61</tomcat.version>
         <glassfish.version>3.1.2.2</glassfish.version>
         <jboss.version>7.1.1.Final</jboss.version>
 
         <eclipse-jdt.version>3.7</eclipse-jdt.version>
 
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <arquillian.version>1.1.6.Final</arquillian.version>
         <arquillian-weld.version>1.0.0.CR8</arquillian-weld.version>
         <arquillian-tomcat.version>1.0.0.CR7</arquillian-tomcat.version>
         <arquillian-glassfish.version>1.0.0.CR4</arquillian-glassfish.version>
 
-        <jacoco.version>0.7.1.201405082137</jacoco.version>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <jacoco.path>${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar</jacoco.path>
         <jacoco.utReport>${project.build.directory}/jacoco.exec</jacoco.utReport>
         <jacoco.itReport>${project.build.directory}/jacoco-it.exec</jacoco.itReport>
         <jacoco.utAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.utReport}</jacoco.utAgentConfig>
         <jacoco.itAgentConfig>-javaagent:${jacoco.path}=destfile=${jacoco.itReport}</jacoco.itAgentConfig>
 
-        <jacoco-listeners.version>2.4</jacoco-listeners.version>
+        <jacoco-listeners.version>3.5</jacoco-listeners.version>
     </properties>
 
     <build>
@@ -138,7 +138,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.sonar-plugins.java</groupId>
+            <groupId>org.sonarsource.java</groupId>
             <artifactId>sonar-jacoco-listeners</artifactId>
             <version>${jacoco-listeners.version}</version>
             <scope>test</scope>
