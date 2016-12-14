@@ -21,7 +21,7 @@
 
     <container qualifier="glassfish-remote">
         <configuration>
-            <property name="adminHost">localhost</property>
+            <property name="adminHost">testserver</property>
             <property name="adminPort">24848</property>
             <property name="adminUser">admin</property>
             <property name="adminPassword">adminadmin</property>
@@ -43,7 +43,7 @@
 
     <container qualifier="jboss-remote">
         <configuration>
-            <property name="managementAddress">localhost</property>
+            <property name="managementAddress">testserver</property>
             <property name="managementPort">19999</property>
         </configuration>
     </container>
@@ -57,12 +57,16 @@
     <container qualifier="tomcat-ondemand">
         <configuration>
             <property name="catalinaHome">target/apache-tomcat-8.0.32</property>
+            <property name="catalinaBase">target/apache-tomcat-8.0.32</property>
+            <property name="user">admin</property>
+            <property name="pass">adminadmin</property>
         </configuration>
     </container>
 
     <container qualifier="tomcat-managed">
         <configuration>
             <property name="catalinaHome">/java/servers/apache-tomcat-8.0.32</property>
+            <property name="catalinaBase">/java/servers/apache-tomcat-8.0.32</property>
             <property name="bindHttpPort">28080</property>
             <property name="jmxPort">28089</property>
             <property name="user">admin</property>
@@ -72,7 +76,7 @@
 
     <container qualifier="tomcat-remote">
         <configuration>
-            <property name="host">localhost</property>
+            <property name="host">testserver</property>
             <property name="httpPort">28080</property>
             <property name="user">admin</property>
             <property name="pass">adminadmin</property>
