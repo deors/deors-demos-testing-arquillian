@@ -20,7 +20,9 @@ public class GreeterTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return ShrinkWrap.create(JavaArchive.class)
+
+        return ShrinkWrap
+            .create(JavaArchive.class, "greeter.jar")
             .addClasses(Greeter.class, PhraseBuilder.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
@@ -29,7 +31,14 @@ public class GreeterTest {
     Greeter greeter;
 
     @Test
+    public void testIsDeployed() {
+
+        Assert.assertNotNull(greeter);
+    }
+
+    @Test
     public void testGreeter() {
+
         Assert.assertEquals("Hello, Earthling!", greeter.createGreeting("Earthling"));
         greeter.greet(System.out, "Earthling");
     }

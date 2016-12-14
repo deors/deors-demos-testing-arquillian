@@ -24,7 +24,7 @@ public class BasketTest {
     public static JavaArchive createDeployment() {
 
         return ShrinkWrap
-            .create(JavaArchive.class, "test.jar")
+            .create(JavaArchive.class, "basket.jar")
             .addClasses(Basket.class, OrderRepository.class,
                 SingletonOrderRepository.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
@@ -37,15 +37,24 @@ public class BasketTest {
     OrderRepository repo;
 
     @Test
-    @InSequence(1)
-    public void place_order_should_add_order() {
+    public void testIsDeployed() {
 
+        Assert.assertNotNull(basket);
+        Assert.assertNotNull(repo);
+    }
+
+    @Test
+    @InSequence(1)
+    public void testPlaceOrderShouldAddOrder() {
+
+        basket.empty();
         basket.addItem("sunglasses");
         basket.addItem("suit");
         basket.placeOrder();
         Assert.assertEquals(1, repo.getOrderCount());
         Assert.assertEquals(0, basket.getItemCount());
 
+        basket.empty();
         basket.addItem("raygun");
         basket.addItem("spaceship");
         basket.placeOrder();
@@ -55,7 +64,7 @@ public class BasketTest {
 
     @Test
     @InSequence(2)
-    public void order_should_be_persistent() {
+    public void testOrderShouldBepersistent() {
 
         Assert.assertEquals(2, repo.getOrderCount());
     }
