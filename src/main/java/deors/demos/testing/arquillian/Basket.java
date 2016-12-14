@@ -73,12 +73,20 @@ public class Basket
     }
 
     /**
+     * Empties the basket.
+     */
+    public void empty() {
+
+        items.clear();
+    }
+
+    /**
      * Places the order and cleans the basket.
      */
     public void placeOrder() {
 
         repo.addOrder(items);
-        items.clear();
+        empty();
     }
 
     /**
