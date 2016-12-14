@@ -83,4 +83,26 @@
         </configuration>
     </container>
 
+    <container qualifier="wildfly-ondemand">
+        <configuration>
+            <property name="jbossHome">target/wildfly-10.1.0.Final</property>
+            <property name="modulePath">target/wildfly-10.1.0.Final/modules</property>
+        </configuration>
+    </container>
+
+    <container qualifier="wildfly-managed">
+        <configuration>
+            <property name="jbossHome">/java/servers/wildfly-10.1.0</property>
+            <property name="modulePath">/java/servers/wildfly-10.1.0/modules</property>
+            <property name="managementPort">29999</property>
+        </configuration>
+    </container>
+
+    <container qualifier="wildfly-remote">
+        <configuration>
+            <property name="managementAddress">testserver</property>
+            <property name="managementPort">29999</property>
+        </configuration>
+    </container>
+
 </arquillian>

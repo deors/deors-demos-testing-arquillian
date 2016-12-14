@@ -24,9 +24,10 @@
         <glassfish.version>4.1.1</glassfish.version>
         <jboss.version>7.1.1.Final</jboss.version>
         <tomcat.version>8.0.32</tomcat.version>
+        <wildfly.version>10.1.0.Final</wildfly.version>
+
         <weld.version>2.4.1.Final</weld.version>
         <el.version>2.2</el.version>
-
         <eclipse-jdt.version>3.7</eclipse-jdt.version>
 
         <junit.version>4.12</junit.version>
@@ -656,6 +657,126 @@
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-tomcat-remote-8</artifactId>
                     <version>${arquillian-tomcat.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- wildfly on-demand -->
+        <profile>
+            <id>arquillian-wildfly-ondemand</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=wildfly-ondemand ${jacoco.utAgentConfig}</argLine>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wildfly</groupId>
+                                            <artifactId>wildfly-dist</artifactId>
+                                            <version>${wildfly.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>target</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-7.0</artifactId>
+                    <version>${jboss-javaee7.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.wildfly.arquillian</groupId>
+                    <artifactId>wildfly-arquillian-container-embedded</artifactId>
+                    <version>${arquillian-wildfly.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- wildfly managed -->
+        <profile>
+            <id>arquillian-wildfly-managed</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=wildfly-managed ${jacoco.utAgentConfig}</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-7.0</artifactId>
+                    <version>${jboss-javaee7.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.wildfly.arquillian</groupId>
+                    <artifactId>wildfly-arquillian-container-managed</artifactId>
+                    <version>${arquillian-wildfly.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- wildfly remote -->
+        <profile>
+            <id>arquillian-wildfly-remote</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- as Surefire argLine is overwritten, JaCoCo agent
+                                 must be included again -->
+                            <argLine>-Darquillian.launch=wildfly-remote ${jacoco.utAgentConfig}</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-7.0</artifactId>
+                    <version>${jboss-javaee7.version}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.wildfly.arquillian</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>${arquillian-wildfly.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
