@@ -4,54 +4,25 @@
             xsi:schemaLocation="http://jboss.org/schema/arquillian
                                 http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
-    <container qualifier="tomcat-embedded">
-        <configuration>
-            <property name="unpackArchive">true</property>
-        </configuration>
-    </container>
-
-    <container qualifier="tomcat-ondemand">
-        <configuration>
-            <property name="catalinaHome">target/apache-tomcat-7.0.55</property>
-        </configuration>
-    </container>
-
-    <container qualifier="tomcat-managed">
-        <configuration>
-            <property name="catalinaHome">/java/servers/apache-tomcat-7.0.55</property>
-            <property name="bindHttpPort">18080</property>
-            <property name="jmxPort">18089</property>
-            <property name="user">admin</property>
-            <property name="pass">adminadmin</property>
-        </configuration>
-    </container>
-
-    <container qualifier="tomcat-remote">
-        <configuration>
-            <property name="host">localhost</property>
-            <property name="httpPort">18080</property>
-            <property name="user">admin</property>
-            <property name="pass">adminadmin</property>
-        </configuration>
-    </container>
+    <container qualifier="glassfish-embedded" default="true" />
 
     <container qualifier="glassfish-ondemand">
         <configuration>
-            <property name="glassFishHome">target/glassfish3</property>
+            <property name="glassFishHome">target/glassfish4</property>
         </configuration>
     </container>
 
     <container qualifier="glassfish-managed">
         <configuration>
-            <property name="glassFishHome">/java/servers/glassfish-3.1.2.2</property>
-            <property name="adminPort">14848</property>
+            <property name="glassFishHome">/java/servers/glassfish-4.1.1</property>
+            <property name="adminPort">24848</property>
         </configuration>
     </container>
 
     <container qualifier="glassfish-remote">
         <configuration>
             <property name="adminHost">localhost</property>
-            <property name="adminPort">14848</property>
+            <property name="adminPort">24848</property>
             <property name="adminUser">admin</property>
             <property name="adminPassword">adminadmin</property>
         </configuration>
@@ -74,6 +45,37 @@
         <configuration>
             <property name="managementAddress">localhost</property>
             <property name="managementPort">19999</property>
+        </configuration>
+    </container>
+
+    <container qualifier="tomcat-embedded">
+        <configuration>
+            <property name="unpackArchive">true</property>
+        </configuration>
+    </container>
+
+    <container qualifier="tomcat-ondemand">
+        <configuration>
+            <property name="catalinaHome">target/apache-tomcat-8.0.32</property>
+        </configuration>
+    </container>
+
+    <container qualifier="tomcat-managed">
+        <configuration>
+            <property name="catalinaHome">/java/servers/apache-tomcat-8.0.32</property>
+            <property name="bindHttpPort">28080</property>
+            <property name="jmxPort">28089</property>
+            <property name="user">admin</property>
+            <property name="pass">adminadmin</property>
+        </configuration>
+    </container>
+
+    <container qualifier="tomcat-remote">
+        <configuration>
+            <property name="host">localhost</property>
+            <property name="httpPort">28080</property>
+            <property name="user">admin</property>
+            <property name="pass">adminadmin</property>
         </configuration>
     </container>
 
